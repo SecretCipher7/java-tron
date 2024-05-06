@@ -1,5 +1,6 @@
 package org.tron.core;
 
+import static org.tron.core.Constant.TRANSACTION_MAX_BYTE_SIZE;
 import static org.tron.core.config.Parameter.ChainConstant.BLOCK_PRODUCED_INTERVAL;
 
 import com.google.protobuf.ByteString;
@@ -427,16 +428,15 @@ public class ChainBaseManager {
     }
   }
 
-  public boolean isTooBigAndCreateNewAccount(Contract contract, Transaction trx) {
-    long bytesSize;
-    if (getDynamicPropertiesStore().supportVM()) {
-      bytesSize = trx.toBuilder().clearSignature().clearRet().build().getSerializedSize()
+  public boolean isTooBigTransactionSize(Contract contract, Transaction trx) {
+    long createAccountBytesSize = trx.toBuilder().clearSignature().clearRet().build()
+        .getSerializedSize() + Constant.MAX_RESULT_SIZE_IN_TX;
+
+    long generalBytesSize = trx.toBuilder().clearRet().build().getSerializedSize()
         + Constant.MAX_RESULT_SIZE_IN_TX;
-    } else {
-      bytesSize = trx.toBuilder().clearSignature().build().getSerializedSize();
-    }
-    return bytesSize > CommonParameter.getInstance().getMaxCreateAccountTxSize()
-        && contractCreateNewAccount(contract);
+
+    return (createAccountBytesSize > CommonParameter.getInstance().getMaxCreateAccountTxSize()
+        && contractCreateNewAccount(contract)) || generalBytesSize > TRANSACTION_MAX_BYTE_SIZE;
   }
 
   public enum  NodeType  {
