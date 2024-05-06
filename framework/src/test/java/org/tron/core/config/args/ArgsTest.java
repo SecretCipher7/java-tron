@@ -15,7 +15,7 @@
 
 package org.tron.core.config.args;
 
-import static org.tron.core.Constant.TRANSACTION_MAX_BYTE_SIZE;
+import static org.tron.core.Constant.CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE;
 
 import com.google.common.collect.Lists;
 import com.typesafe.config.Config;
@@ -103,7 +103,8 @@ public class ArgsTest {
     Assert.assertEquals(43, parameter.getNodeP2pVersion());
     Assert.assertEquals(54, parameter.getMaxUnsolidifiedBlocks());
     Assert.assertEquals(false, parameter.isUnsolidifiedBlockCheck());
-    Assert.assertEquals(TRANSACTION_MAX_BYTE_SIZE, parameter.getMaxCreateAccountTxSize());
+    Assert.assertEquals(CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE,
+        parameter.getMaxCreateAccountTxSize());
     //Assert.assertEquals(30, args.getSyncNodeCount());
 
     // gRPC network configs checking
