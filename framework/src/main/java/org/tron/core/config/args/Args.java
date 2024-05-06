@@ -234,6 +234,7 @@ public class Args extends CommonParameter {
     PARAMETER.maxUnsolidifiedBlocks = 54;
     PARAMETER.allowOldRewardOpt = 0;
     PARAMETER.maxCreateAccountTxSize = (int) TRANSACTION_MAX_BYTE_SIZE;
+    PARAMETER.allowEnergyAdjustment = 0;
   }
 
   /**
@@ -1210,6 +1211,10 @@ public class Args extends CommonParameter {
           + " or committee.allowTvmVote = 1.");
     }
     PARAMETER.allowOldRewardOpt = allowOldRewardOpt;
+
+    PARAMETER.allowEnergyAdjustment =
+            config.hasPath(Constant.COMMITTEE_ALLOW_ENERGY_ADJUSTMENT) ? config
+                    .getInt(Constant.COMMITTEE_ALLOW_ENERGY_ADJUSTMENT) : 0;
 
     logConfig();
   }
