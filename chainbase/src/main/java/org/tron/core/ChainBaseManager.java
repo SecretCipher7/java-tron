@@ -430,10 +430,10 @@ public class ChainBaseManager {
   public boolean isTooBigAndCreateNewAccount(Contract contract, Transaction trx) {
     long bytesSize;
     if (getDynamicPropertiesStore().supportVM()) {
-      bytesSize = trx.toBuilder().clearRet().build().getSerializedSize()
+      bytesSize = trx.toBuilder().clearSignature().clearRet().build().getSerializedSize()
         + Constant.MAX_RESULT_SIZE_IN_TX;
     } else {
-      bytesSize = trx.getSerializedSize();
+      bytesSize = trx.toBuilder().clearSignature().build().getSerializedSize();
     }
     return bytesSize > CommonParameter.getInstance().getMaxCreateAccountTxSize()
         && contractCreateNewAccount(contract);
