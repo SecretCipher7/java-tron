@@ -508,10 +508,10 @@ public class Wallet {
       if (trx.getInstance().getRawData().getContractCount() > 0) {
         Contract contract = trx.getInstance().getRawData().getContract(0);
         if (chainBaseManager.isTooBigTransactionSize(contract, trx.getInstance())) {
-          logger.warn("Broadcast transaction {} has failed, the transaction size is too big.",
+          logger.warn("Broadcast transaction {} has failed, Transaction size is too big.",
               txID);
           return builder.setResult(false).setCode(response_code.TOO_BIG_TRANSACTION_ERROR)
-              .setMessage(ByteString.copyFromUtf8("the transaction size is too big."))
+              .setMessage(ByteString.copyFromUtf8("Transaction size is too big."))
               .build();
         }
       }
