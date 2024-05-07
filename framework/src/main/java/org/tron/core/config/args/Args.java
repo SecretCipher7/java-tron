@@ -1198,16 +1198,9 @@ public class Args extends CommonParameter {
         .getInt(Constant.MAX_UNSOLIDIFIED_BLOCKS) : 54;
 
     if (config.hasPath(Constant.MAX_CREATE_ACCOUNT_TX_SIZE)) {
-      PARAMETER.maxCreateAccountTxSize
-          = config.getInt(Constant.MAX_CREATE_ACCOUNT_TX_SIZE);
-      if (PARAMETER.maxCreateAccountTxSize < CREATE_ACCOUNT_TRANSACTION_MIN_BYTE_SIZE) {
-        PARAMETER.maxCreateAccountTxSize = CREATE_ACCOUNT_TRANSACTION_MIN_BYTE_SIZE;
-      }
-      if (PARAMETER.maxCreateAccountTxSize > CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE) {
-        PARAMETER.maxCreateAccountTxSize = CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE;
-      }
-    } else {
-      PARAMETER.maxCreateAccountTxSize = CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE;
+      int maxTxSize = config.getInt(Constant.MAX_CREATE_ACCOUNT_TX_SIZE);
+      PARAMETER.maxCreateAccountTxSize = Math.max(CREATE_ACCOUNT_TRANSACTION_MIN_BYTE_SIZE,
+          Math.min(maxTxSize, CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE));
     }
 
     long allowOldRewardOpt = config.hasPath(Constant.COMMITTEE_ALLOW_OLD_REWARD_OPT) ? config

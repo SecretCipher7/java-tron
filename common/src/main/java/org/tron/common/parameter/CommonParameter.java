@@ -668,7 +668,7 @@ public class CommonParameter {
 
   @Getter
   @Setter
-  public int maxCreateAccountTxSize;
+  public int maxCreateAccountTxSize = 5000;
   
   @Getter
   @Setter
