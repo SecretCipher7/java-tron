@@ -507,7 +507,7 @@ public class Wallet {
       }
       if (trx.getInstance().getRawData().getContractCount() > 0) {
         Contract contract = trx.getInstance().getRawData().getContract(0);
-        if (chainBaseManager.isTooBigAndCreateNewAccount(contract, trx.getInstance())) {
+        if (chainBaseManager.isTooBigTransactionSize(contract, trx.getInstance())) {
           logger.warn("Broadcast transaction {} has failed, create account tx size exceeded limit.",
               txID);
           return builder.setResult(false).setCode(response_code.TOO_BIG_TRANSACTION_ERROR)

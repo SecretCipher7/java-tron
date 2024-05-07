@@ -1,5 +1,6 @@
 package org.tron.core.db;
 
+import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import java.io.IOException;
 import java.util.Arrays;
@@ -28,6 +29,7 @@ import org.tron.core.config.DefaultConfig;
 import org.tron.core.config.args.Args;
 import org.tron.protos.Protocol;
 import org.tron.protos.Protocol.Transaction;
+import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.Protocol.Transaction.Contract.ContractType;
 import org.tron.protos.contract.BalanceContract.TransferContract;
 
@@ -107,9 +109,8 @@ public class TransactionExpireTest {
         .setAmount(1L)
         .setOwnerAddress(ByteString.copyFrom(Args.getLocalWitnesses()
             .getWitnessAccountAddress(CommonParameter.getInstance().isECKeyCryptoEngine())))
-        .setToAddress(ByteString.copyFrom(ByteArray.fromHexString(
-            (Wallet.getAddressPreFixString() + "A389132D6639FBDA4FBC8B659264E6B7C90DB086"))))
-        .build();
+        .setToAddress(ByteString.copyFrom(ByteArray.fromHexString((Wallet.getAddressPreFixString()
+            + "A389132D6639FBDA4FBC8B659264E6B7C90DB086")))).build();
     TransactionCapsule transactionCapsule =
         new TransactionCapsule(transferContract, ContractType.TransferContract);
     transactionCapsule.setReference(blockCapsule.getNum(), blockCapsule.getBlockId().getBytes());
@@ -118,6 +119,35 @@ public class TransactionExpireTest {
     CommonParameter.getInstance().setMaxCreateAccountTxSize(100);
     transactionCapsule.sign(ByteArray.fromHexString(Args.getLocalWitnesses().getPrivateKey()));
 
+    GrpcAPI.Return result = wallet.broadcastTransaction(transactionCapsule.getInstance());
+    Assert.assertEquals(response_code.TOO_BIG_TRANSACTION_ERROR, result.getCode());
+  }
+
+  @Test
+  public void testGeneralTransactionExceedLimit() {
+    TransferContract transferContract = TransferContract.newBuilder()
+        .setAmount(1000L)
+        .setOwnerAddress(ByteString.copyFrom(Args.getLocalWitnesses()
+            .getWitnessAccountAddress(CommonParameter.getInstance().isECKeyCryptoEngine())))
+        .setToAddress(ByteString.copyFrom(ByteArray.fromHexString((Wallet.getAddressPreFixString()
+            + "A389132D6639FBDA4FBC8B659264E6B7C90DB086")))).build();
+
+    StringBuilder sb = new StringBuilder();
+    String dataStr = "测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备";
+    for (int i = 0; i < 3650; i++) {
+      sb.append(dataStr);
+    }
+    Transaction trx = Transaction.newBuilder().setRawData(
+        Transaction.raw.newBuilder().setTimestamp(System.currentTimeMillis()).setRefBlockNum(1)
+            .setData(ByteString.copyFrom((sb.toString()).getBytes()))
+            .addContract(Contract.newBuilder().setType(ContractType.TransferContract)
+                .setParameter(Any.pack(transferContract)).build()).build()).build();
+
+    TransactionCapsule transactionCapsule = new TransactionCapsule(trx);
+    transactionCapsule.setReference(blockCapsule.getNum(), blockCapsule.getBlockId().getBytes());
+    Assert.assertEquals(1, blockCapsule.getTimeStamp());
+
+    transactionCapsule.sign(ByteArray.fromHexString(Args.getLocalWitnesses().getPrivateKey()));
     GrpcAPI.Return result = wallet.broadcastTransaction(transactionCapsule.getInstance());
     Assert.assertEquals(response_code.TOO_BIG_TRANSACTION_ERROR, result.getCode());
   }

@@ -76,7 +76,7 @@ public class TransactionsMsgHandler implements TronMsgHandler {
     for (Transaction trx : transactionsMessage.getTransactions().getTransactionsList()) {
       Contract contract = trx.getRawData().getContract(0);
       int type = contract.getType().getNumber();
-      if (chainBaseManager.isTooBigAndCreateNewAccount(contract, trx)) {
+      if (chainBaseManager.isTooBigTransactionSize(contract, trx)) {
         logger.warn("Drop tx type: {} size: {} from Peer {}, syncFromUs: {}, syncFromPeer: {}",
             type, trx.getSerializedSize(), peer.getInetAddress(), peer.isNeedSyncFromUs(),
             peer.isNeedSyncFromPeer());
