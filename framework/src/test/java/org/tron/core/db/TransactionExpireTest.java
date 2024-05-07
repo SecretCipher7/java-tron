@@ -133,7 +133,8 @@ public class TransactionExpireTest {
             + "A389132D6639FBDA4FBC8B659264E6B7C90DB086")))).build();
 
     StringBuilder sb = new StringBuilder();
-    String dataStr = "测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备注测试备";
+    String dataStr = "testmemotestmemotestmemotestmemotestmemotestmemotestmemotestmemotestmemotestm"
+        + "emotestmemotestmemotestmemotestmemotestmemotestmemotestmemotestme";
     for (int i = 0; i < 3650; i++) {
       sb.append(dataStr);
     }

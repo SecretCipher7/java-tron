@@ -435,8 +435,9 @@ public class ChainBaseManager {
     long generalBytesSize = trx.toBuilder().clearRet().build().getSerializedSize()
         + Constant.MAX_RESULT_SIZE_IN_TX;
 
-    return (createAccountBytesSize > CommonParameter.getInstance().getMaxCreateAccountTxSize()
-        && contractCreateNewAccount(contract)) || generalBytesSize > TRANSACTION_MAX_BYTE_SIZE;
+    return generalBytesSize > TRANSACTION_MAX_BYTE_SIZE
+        || (createAccountBytesSize > CommonParameter.getInstance().getMaxCreateAccountTxSize()
+        && contractCreateNewAccount(contract));
   }
 
   public enum  NodeType  {
