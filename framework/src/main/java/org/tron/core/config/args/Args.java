@@ -3,8 +3,6 @@ package org.tron.core.config.args;
 import static java.lang.Math.max;
 import static java.lang.System.exit;
 import static org.tron.core.Constant.ADD_PRE_FIX_BYTE_MAINNET;
-import static org.tron.core.Constant.CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE;
-import static org.tron.core.Constant.CREATE_ACCOUNT_TRANSACTION_MIN_BYTE_SIZE;
 import static org.tron.core.Constant.DYNAMIC_ENERGY_INCREASE_FACTOR_RANGE;
 import static org.tron.core.Constant.DYNAMIC_ENERGY_MAX_FACTOR_RANGE;
 import static org.tron.core.config.Parameter.ChainConstant.BLOCK_PRODUCE_TIMEOUT_PERCENT;
@@ -235,7 +233,6 @@ public class Args extends CommonParameter {
     PARAMETER.maxUnsolidifiedBlocks = 54;
     PARAMETER.allowOldRewardOpt = 0;
     PARAMETER.allowEnergyAdjustment = 0;
-    PARAMETER.maxCreateAccountTxSize = CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE;
   }
 
   /**
@@ -1196,19 +1193,6 @@ public class Args extends CommonParameter {
     PARAMETER.maxUnsolidifiedBlocks =
       config.hasPath(Constant.MAX_UNSOLIDIFIED_BLOCKS) ? config
         .getInt(Constant.MAX_UNSOLIDIFIED_BLOCKS) : 54;
-
-    if (config.hasPath(Constant.MAX_CREATE_ACCOUNT_TX_SIZE)) {
-      PARAMETER.maxCreateAccountTxSize
-          = config.getInt(Constant.MAX_CREATE_ACCOUNT_TX_SIZE);
-      if (PARAMETER.maxCreateAccountTxSize < CREATE_ACCOUNT_TRANSACTION_MIN_BYTE_SIZE) {
-        PARAMETER.maxCreateAccountTxSize = CREATE_ACCOUNT_TRANSACTION_MIN_BYTE_SIZE;
-      }
-      if (PARAMETER.maxCreateAccountTxSize > CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE) {
-        PARAMETER.maxCreateAccountTxSize = CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE;
-      }
-    } else {
-      PARAMETER.maxCreateAccountTxSize = CREATE_ACCOUNT_TRANSACTION_MAX_BYTE_SIZE;
-    }
 
     long allowOldRewardOpt = config.hasPath(Constant.COMMITTEE_ALLOW_OLD_REWARD_OPT) ? config
         .getInt(Constant.COMMITTEE_ALLOW_OLD_REWARD_OPT) : 0;

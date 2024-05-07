@@ -1,5 +1,7 @@
 package org.tron.core;
 
+import static org.tron.common.utils.TxUtil.contractCreateNewAccount;
+
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import lombok.extern.slf4j.Slf4j;
@@ -220,7 +222,7 @@ public class BandwidthProcessorTest extends BaseTest {
         .get(ByteArray.fromHexString(OWNER_ADDRESS));
     ownerCapsule.setFrozen(10_000_000L, 0L);
 
-    Assert.assertEquals(true, chainBaseManager.contractCreateNewAccount(contract));
+    Assert.assertTrue(contractCreateNewAccount(contract));
     long bytes = trx.getSerializedSize();
     TransactionTrace trace = new TransactionTrace(trx, StoreFactory
         .getInstance(), new RuntimeImpl());

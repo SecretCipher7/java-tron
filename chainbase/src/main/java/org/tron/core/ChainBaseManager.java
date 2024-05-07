@@ -1,6 +1,5 @@
 package org.tron.core;
 
-import static org.tron.core.Constant.TRANSACTION_MAX_BYTE_SIZE;
 import static org.tron.core.config.Parameter.ChainConstant.BLOCK_PRODUCED_INTERVAL;
 
 import com.google.protobuf.ByteString;
@@ -12,12 +11,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections4.CollectionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.tron.common.parameter.CommonParameter;
 import org.tron.common.storage.metric.DbStatService;
 import org.tron.common.utils.ForkController;
 import org.tron.common.utils.Sha256Hash;
 import org.tron.common.zksnark.MerkleContainer;
-import org.tron.core.capsule.AccountCapsule;
 import org.tron.core.capsule.BlockCapsule;
 import org.tron.core.capsule.BlockCapsule.BlockId;
 import org.tron.core.capsule.TransactionCapsule;
@@ -70,10 +67,6 @@ import org.tron.core.store.VotesStore;
 import org.tron.core.store.WitnessScheduleStore;
 import org.tron.core.store.WitnessStore;
 import org.tron.core.store.ZKProofStore;
-import org.tron.protos.Protocol.Transaction;
-import org.tron.protos.Protocol.Transaction.Contract;
-import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
-import org.tron.protos.contract.BalanceContract.TransferContract;
 
 @Slf4j(topic = "DB")
 @Component
@@ -396,48 +389,6 @@ public class ChainBaseManager {
 
   public boolean isLiteNode() {
     return getNodeType() == NodeType.LITE;
-  }
-
-  public boolean contractCreateNewAccount(Contract contract) {
-    AccountCapsule toAccount;
-    switch (contract.getType()) {
-      case AccountCreateContract:
-        return true;
-      case TransferContract:
-        TransferContract transferContract;
-        try {
-          transferContract = contract.getParameter().unpack(TransferContract.class);
-        } catch (Exception ex) {
-          throw new RuntimeException(ex.getMessage());
-        }
-        toAccount =
-            chainBaseManager.getAccountStore().get(transferContract.getToAddress().toByteArray());
-        return toAccount == null;
-      case TransferAssetContract:
-        TransferAssetContract transferAssetContract;
-        try {
-          transferAssetContract = contract.getParameter().unpack(TransferAssetContract.class);
-        } catch (Exception ex) {
-          throw new RuntimeException(ex.getMessage());
-        }
-        toAccount = chainBaseManager.getAccountStore()
-            .get(transferAssetContract.getToAddress().toByteArray());
-        return toAccount == null;
-      default:
-        return false;
-    }
-  }
-
-  public boolean isTooBigTransactionSize(Contract contract, Transaction trx) {
-    long createAccountBytesSize = trx.toBuilder().clearSignature().clearRet().build()
-        .getSerializedSize() + Constant.MAX_RESULT_SIZE_IN_TX;
-
-    long generalBytesSize = trx.toBuilder().clearRet().build().getSerializedSize()
-        + Constant.MAX_RESULT_SIZE_IN_TX;
-
-    return generalBytesSize > TRANSACTION_MAX_BYTE_SIZE
-        || (createAccountBytesSize > CommonParameter.getInstance().getMaxCreateAccountTxSize()
-        && contractCreateNewAccount(contract));
   }
 
   public enum  NodeType  {
