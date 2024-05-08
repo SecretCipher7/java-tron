@@ -20,6 +20,7 @@ package org.tron.core;
 
 import static org.tron.common.utils.Commons.getAssetIssueStoreFinal;
 import static org.tron.common.utils.Commons.getExchangeStoreFinal;
+import static org.tron.common.utils.TxUtil.isTooBigTransactionSize;
 import static org.tron.common.utils.WalletUtil.isConstant;
 import static org.tron.core.capsule.utils.TransactionUtil.buildInternalTransaction;
 import static org.tron.core.config.Parameter.ChainConstant.BLOCK_PRODUCED_INTERVAL;
@@ -505,15 +506,15 @@ public class Wallet {
           .setMessage(ByteString.copyFromUtf8("Block unsolidified."))
           .build();
       }
-      if (trx.getInstance().getRawData().getContractCount() > 0) {
-        Contract contract = trx.getInstance().getRawData().getContract(0);
-        if (chainBaseManager.isTooBigTransactionSize(contract, trx.getInstance())) {
-          logger.warn("Broadcast transaction {} has failed, Transaction size is too big.",
-              txID);
-          return builder.setResult(false).setCode(response_code.TOO_BIG_TRANSACTION_ERROR)
-              .setMessage(ByteString.copyFromUtf8("Transaction size is too big."))
-              .build();
-        }
+      if (trx.getInstance().getRawData().getContractCount() == 0) {
+        throw new ContractValidateException(ActuatorConstant.CONTRACT_NOT_EXIST);
+      }
+      if (isTooBigTransactionSize(trx.getInstance())) {
+        logger.warn("Broadcast transaction {} has failed, Transaction size {} is too big.",
+            txID, trx.getSerializedSize());
+        return builder.setResult(false).setCode(response_code.TOO_BIG_TRANSACTION_ERROR)
+            .setMessage(ByteString.copyFromUtf8("Transaction size is too big."))
+            .build();
       }
 
       if (minEffectiveConnection != 0) {
@@ -556,9 +557,6 @@ public class Wallet {
 
       if (chainBaseManager.getDynamicPropertiesStore().supportVM()) {
         trx.resetResult();
-      }
-      if (trx.getInstance().getRawData().getContractCount() == 0) {
-        throw new ContractValidateException(ActuatorConstant.CONTRACT_NOT_EXIST);
       }
       dbManager.pushTransaction(trx);
       int num = tronNetService.fastBroadcastTransaction(message);
@@ -1347,6 +1345,11 @@ public class Wallet {
     builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
         .setKey("getAllowEnergyAdjustment")
         .setValue(dbManager.getDynamicPropertiesStore().getAllowEnergyAdjustment())
+        .build());
+
+    builder.addChainParameter(Protocol.ChainParameters.ChainParameter.newBuilder()
+        .setKey("getMaxCreateAccountTxSize")
+        .setValue(dbManager.getDynamicPropertiesStore().getMaxCreateAccountTxSize())
         .build());
 
     return builder.build();

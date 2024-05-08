@@ -1,7 +1,5 @@
 package org.tron.core.net.messagehandler;
 
-import static org.mockito.ArgumentMatchers.any;
-
 import com.google.protobuf.Any;
 import com.google.protobuf.ByteString;
 import java.lang.reflect.Field;
@@ -17,7 +15,6 @@ import org.mockito.Mockito;
 import org.tron.common.BaseTest;
 import org.tron.common.parameter.CommonParameter;
 import org.tron.common.utils.ByteArray;
-import org.tron.core.ChainBaseManager;
 import org.tron.core.Constant;
 import org.tron.core.config.args.Args;
 import org.tron.core.net.TronNetDelegate;
@@ -47,16 +44,11 @@ public class TransactionsMsgHandlerTest extends BaseTest {
 
       PeerConnection peer = Mockito.mock(PeerConnection.class);
       TronNetDelegate tronNetDelegate = Mockito.mock(TronNetDelegate.class);
-      chainBaseManager = Mockito.mock(ChainBaseManager.class);
       AdvService advService = Mockito.mock(AdvService.class);
 
       Field field = TransactionsMsgHandler.class.getDeclaredField("tronNetDelegate");
       field.setAccessible(true);
       field.set(transactionsMsgHandler, tronNetDelegate);
-
-      Field field1 = TransactionsMsgHandler.class.getDeclaredField("chainBaseManager");
-      field1.setAccessible(true);
-      field1.set(transactionsMsgHandler, chainBaseManager);
 
       BalanceContract.TransferContract transferContract = BalanceContract.TransferContract
           .newBuilder()
@@ -85,7 +77,6 @@ public class TransactionsMsgHandlerTest extends BaseTest {
           Protocol.Inventory.InventoryType.TRX);
       advInvRequest.put(item, 0L);
       Mockito.when(peer.getAdvInvRequest()).thenReturn(advInvRequest);
-      Mockito.when(chainBaseManager.contractCreateNewAccount(any())).thenReturn(true);
 
       CommonParameter.getInstance().setMaxCreateAccountTxSize(500);
       List<Protocol.Transaction> transactionList = new ArrayList<>();

@@ -1,5 +1,6 @@
 package org.tron.core.db;
 
+import static org.tron.common.utils.TxUtil.contractCreateNewAccount;
 import static org.tron.core.config.Parameter.ChainConstant.TRX_PRECISION;
 import static org.tron.protos.Protocol.Transaction.Contract.ContractType.ShieldedTransferContract;
 import static org.tron.protos.Protocol.Transaction.Contract.ContractType.TransferAssetContract;
@@ -124,7 +125,7 @@ public class BandwidthProcessor extends ResourceProcessor {
             StringUtil.encode58Check(address)));
       }
       long now = chainBaseManager.getHeadSlot();
-      if (chainBaseManager.contractCreateNewAccount(contract)) {
+      if (contractCreateNewAccount(contract)) {
         consumeForCreateNewAccount(accountCapsule, bytesSize, now, trace);
         continue;
       }
