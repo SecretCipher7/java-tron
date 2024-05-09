@@ -759,6 +759,7 @@ public class ProposalUtil {
           throw new ContractValidateException(
                   "This value[ALLOW_ENERGY_ADJUSTMENT] is only allowed to be 1");
         }
+        break;
       }
       case MAX_CREATE_ACCOUNT_TX_SIZE: {
         if (!forkController.pass(ForkBlockVersionEnum.VERSION_4_7_5)) {
