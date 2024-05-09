@@ -20,7 +20,6 @@ package org.tron.core;
 
 import static org.tron.common.utils.Commons.getAssetIssueStoreFinal;
 import static org.tron.common.utils.Commons.getExchangeStoreFinal;
-import static org.tron.common.utils.TxUtil.isTooBigTransactionSize;
 import static org.tron.common.utils.WalletUtil.isConstant;
 import static org.tron.core.capsule.utils.TransactionUtil.buildInternalTransaction;
 import static org.tron.core.config.Parameter.ChainConstant.BLOCK_PRODUCED_INTERVAL;
@@ -509,13 +508,6 @@ public class Wallet {
       if (trx.getInstance().getRawData().getContractCount() == 0) {
         throw new ContractValidateException(ActuatorConstant.CONTRACT_NOT_EXIST);
       }
-      if (isTooBigTransactionSize(trx.getInstance())) {
-        logger.warn("Broadcast transaction {} has failed, Transaction size {} is too big.",
-            txID, trx.getSerializedSize());
-        return builder.setResult(false).setCode(response_code.TOO_BIG_TRANSACTION_ERROR)
-            .setMessage(ByteString.copyFromUtf8("Transaction size is too big."))
-            .build();
-      }
 
       if (minEffectiveConnection != 0) {
         if (tronNetDelegate.getActivePeer().isEmpty()) {
@@ -600,8 +592,7 @@ public class Wallet {
     } catch (TooBigTransactionException e) {
       logger.warn(BROADCAST_TRANS_FAILED, txID, e.getMessage());
       return builder.setResult(false).setCode(response_code.TOO_BIG_TRANSACTION_ERROR)
-          .setMessage(ByteString.copyFromUtf8("Transaction size is too big."))
-          .build();
+          .setMessage(ByteString.copyFromUtf8(e.getMessage())).build();
     } catch (TransactionExpirationException e) {
       logger.warn(BROADCAST_TRANS_FAILED, txID, e.getMessage());
       return builder.setResult(false).setCode(response_code.TRANSACTION_EXPIRATION_ERROR)

@@ -21,7 +21,9 @@ import org.tron.core.capsule.AssetIssueCapsule;
 import org.tron.core.capsule.TransactionCapsule;
 import org.tron.core.exception.AccountResourceInsufficientException;
 import org.tron.core.exception.ContractValidateException;
+import org.tron.core.exception.TooBigTransactionException;
 import org.tron.core.exception.TooBigTransactionResultException;
+import org.tron.core.store.DynamicPropertiesStore;
 import org.tron.protos.Protocol.Transaction.Contract;
 import org.tron.protos.contract.AssetIssueContractOuterClass.TransferAssetContract;
 
@@ -94,7 +96,7 @@ public class BandwidthProcessor extends ResourceProcessor {
   @Override
   public void consume(TransactionCapsule trx, TransactionTrace trace)
       throws ContractValidateException, AccountResourceInsufficientException,
-      TooBigTransactionResultException {
+      TooBigTransactionResultException, TooBigTransactionException {
     List<Contract> contracts = trx.getInstance().getRawData().getContractList();
     if (trx.getResultSerializedSize() > Constant.MAX_RESULT_SIZE_IN_TX * contracts.size()) {
       throw new TooBigTransactionResultException();
@@ -126,6 +128,21 @@ public class BandwidthProcessor extends ResourceProcessor {
       }
       long now = chainBaseManager.getHeadSlot();
       if (contractCreateNewAccount(contract)) {
+
+        if (!trx.isInBlock()) {
+          DynamicPropertiesStore propertiesStore = ChainBaseManager.getChainBaseManager()
+              .getDynamicPropertiesStore();
+          long maxCreateAccountTxSize = propertiesStore.getMaxCreateAccountTxSize();
+          long createAccountBytesSize = trx.getInstance().toBuilder().clearSignature().clearRet()
+              .build().getSerializedSize();
+          if (createAccountBytesSize > maxCreateAccountTxSize) {
+
+            throw new TooBigTransactionException(String.format(
+                "Too big new account transaction, TxId %s, the size is %d bytes, maxTxSize %d",
+                trx.getTransactionId(), createAccountBytesSize, maxCreateAccountTxSize));
+          }
+
+        }
         consumeForCreateNewAccount(accountCapsule, bytesSize, now, trace);
         continue;
       }

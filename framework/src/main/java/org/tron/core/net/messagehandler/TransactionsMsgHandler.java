@@ -1,8 +1,5 @@
 package org.tron.core.net.messagehandler;
 
-import static org.tron.common.utils.TxUtil.isTooBigTransactionSize;
-import static org.tron.core.utils.TransactionUtil.getTransactionId;
-
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -13,7 +10,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.tron.common.es.ExecutorServiceManager;
-import org.tron.common.utils.Sha256Hash;
 import org.tron.core.config.args.Args;
 import org.tron.core.exception.P2pException;
 import org.tron.core.exception.P2pException.TypeEnum;
@@ -77,13 +73,7 @@ public class TransactionsMsgHandler implements TronMsgHandler {
     for (Transaction trx : transactionsMessage.getTransactions().getTransactionsList()) {
       Contract contract = trx.getRawData().getContract(0);
       int type = contract.getType().getNumber();
-      if (isTooBigTransactionSize(trx)) {
-        Sha256Hash txId = getTransactionId(trx);
-        logger.warn("Drop tx {} type: {} size: {} from Peer {}, syncFromUs: {}, syncFromPeer: {}",
-            txId, type, trx.getSerializedSize(), peer.getInetAddress(), peer.isNeedSyncFromUs(),
-            peer.isNeedSyncFromPeer());
-        continue;
-      }
+
       if (type == ContractType.TriggerSmartContract_VALUE
           || type == ContractType.CreateSmartContract_VALUE) {
         if (!smartContractQueue.offer(new TrxEvent(peer, new TransactionMessage(trx)))) {
